@@ -65,7 +65,7 @@
           uiLastY_Normal="791" uiopen_Normal="1">
     <PLUGIN name="AUAudioFilePlayer" format="AudioUnit" category="Generator"
             manufacturer="Apple" version="1.6.0" file="AudioUnit:Generators/augn,afpl,appl"
-            uid="6163676e" isInstrument="0" fileTime="0" infoUpdateTime="17b8c89ee40"
+            uid="6163676e" isInstrument="0" fileTime="0" infoUpdateTime="17b91a4e3d4"
             numInputs="0" numOutputs="2" isShell="0"/>
     <STATE>774.hAGaoMGcv.C1AHv.DTfAGfPBJr.IkXxIpvUag4VclE1XzUmbkIGUjEFcg8EDarVPUAkbkMWYzAUYxMWZyQWYtQ2TzEFcksTY4c0b0IFc4AWYWYWYxMWZu4FUzkGbk8EDOXVZrUVKxUlYkIWYtMVYyQkag0VYRDFbvwFPhxfFR2fCO.AVFkFak4TXsU1URU1Yo8lay8EDp7RUyUlby8Bbx81YxEVasklam8BQkM2Zz8FbuTzYmwVYyMGHBIWZtbWX1EZDTKwDTTgEWfQFdIUYmk1atQzakMGSu8FbZIUYmk1atQTXzE1WP.QRyMUYrU1XzUFYRU1Yo8laZIUYmk1at4TXsUFBOAAb...........b60L...F...Xki...fA....NDCD......fCw.A.....LSAn3++A............P...............................................................P4Lz.......jfVNU1cfHUYmk1atMcCNrAGcfgWIM2TkwVYiQWYjYTZrU1WP7yKUMWYxM2KvI2amIWXs0VZtc1KDU1bqQ2av8RQmcFakM2bf3VY2ABYxUWayAhcwDiK0.BYhwFHhE1by4RavMSndPsDSPQEV.BFhfvSP.G...........nXJC..fA...nkI...X....xV.AA.....frEPP......yO5P9+e.............D................................................................n96A......InkSkcGHRU1Yo8laIHQXlAGaP.fDgU2YtIMJo7.GVYTZrUFHwXkQowVYfHCVU4FcoQGakQF.H.PF.XB.q.PR.DE.YAfW..G.0Afd.rG.9Avf.vH.TBPv.LL.LCv1.XN.4G.AATP.3EPdAPX.KFflAvc.dGv4Aft.aI.WBbl.nIPaB7l.zIPdB.n.GB.......HP..........rB..................H.j</STATE>
     <LAYOUT>
@@ -79,9 +79,9 @@
           uiLastY_Normal="818" uiopen_Normal="1">
     <PLUGIN name="MyUtility" format="VST3" category="Fx" manufacturer="yourcompany"
             version="1.0.0" file="/Users/programming/Library/Audio/Plug-Ins/VST3/MyUtility.vst3"
-            uid="acfc84b5" isInstrument="0" fileTime="17b8c886f7b" infoUpdateTime="17b8c89ee40"
+            uid="acfc84b5" isInstrument="0" fileTime="17b8c886f7b" infoUpdateTime="17b91a4e3d4"
             numInputs="2" numOutputs="2" isShell="0"/>
-    <STATE>191.VMjLgXK....O+fWarAhckI2bo8la8HRLt.iHfTlai8FYo41Y8HRUTYTK3HxO9.BOVMEUy.Ea0cVZtMEcgQWY9vSRC8Vav8lak4Fc9XCLt3hKt3hKt3hKt3hYRUUSTEETIckVwTjQisVTTgkdEYjKAQjYPQSPWgUdMcjKAQjct3hdA4hKt3hKt3hKtnTUv.UQAslXuk0UXoWUFE0YQcEV77RRC8Vav8lak4Fc9vyKVMEUy.Ea0cVZtMEcgQWY9..</STATE>
+    <STATE>260.VMjLgrO....O+fWarAhckI2bo8la8HRLt.iHfTlai8FYo41Y8HRUTYTK3HxO9.BOVMEUy.Ea0cVZtMEcgQWY9vSRC8Vav8lak4Fc9DSLw3BTEwlXmAiUYoWUrIVdA4hKAQjKTETRUAUSAAkKBolQY4BQlETQhYEVuQiQtDSQFEFLUYjKAolKA4hKt3hKt3hY13BSt3hKt3hKt3hKt3hYRUUSTEETIckVwTjQisVTTgkdEYjKAQjYPQSPWgUdMcjKAQjct3hdA4hKt3hKt3hKtnTUv.UQAslXuk0UXoWUFE0YQcEV77RRC8Vav8lak4Fc9vyKVMEUy.Ea0cVZtMEcgQWY9..</STATE>
     <LAYOUT>
       <INPUTS>
         <BUS index="0" layout="L R"/>
