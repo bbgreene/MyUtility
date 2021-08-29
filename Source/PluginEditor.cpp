@@ -14,7 +14,7 @@ MyUtilityAudioProcessorEditor::MyUtilityAudioProcessorEditor (MyUtilityAudioProc
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     gainSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    gainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 25);
+    gainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 25);
     addAndMakeVisible(gainSlider);
     
     gainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "gain", gainSlider);
