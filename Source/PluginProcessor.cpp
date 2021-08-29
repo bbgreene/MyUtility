@@ -156,9 +156,9 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
         
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            auto& myGain = *apvts.getRawParameterValue("gain");
+            auto myGain = apvts.getRawParameterValue("gain")->load();
             
-            channelData [sample] = channelData[sample] * myGain;
+            channelData [sample] = channelData[sample] * juce::Decibels::decibelsToGain(myGain);
         }
     }
 }
@@ -199,7 +199,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("gain", "Gain", juce::NormalisableRange<float> (0.0f, 1.0f), 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("gain", "Gain", juce::NormalisableRange<float> (-66.0f, 35.0f, 0.5f, 1.63f), 0.0f));
     
     return { params.begin(), params.end() };
 }
