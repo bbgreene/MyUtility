@@ -135,30 +135,32 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+   
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
         
+//        for loop that utilies gain and phase values. The phase formula came from here: // got this equation from juce tutorial:  https://docs.juce.com/master/tutorial_audio_processor_value_tree_state.html
+        
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
+            auto myPhase = apvts.getRawParameterValue("phase")->load() < 0.5f ? 1.0f : -1.0f;
             auto myGain = apvts.getRawParameterValue("gain")->load();
             
-            channelData [sample] = channelData[sample] * juce::Decibels::decibelsToGain(myGain);
+            channelData [sample] = channelData[sample] * juce::Decibels::decibelsToGain(myGain) * myPhase;
+        }
+        
+        // for loop that flips mute button bool value: if it is set to '1' (or Mute On) then the audio is muted. If it is set to '0' (or Mute off) then the audio passes. There is probably a better way to do this in the toggleButton itself, but can't figure it out at the mo
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            auto myMute = apvts.getRawParameterValue("mute")->load();
+            if (myMute == 1)
+                channelData [sample] = channelData[sample] * 0;
+            else if (myMute == 0)
+                channelData [sample] = channelData[sample] * 1;
         }
     }
 }
@@ -208,7 +210,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     
+    //this pushes gain into the vector list above
     params.push_back(std::make_unique<juce::AudioParameterFloat>("gain", "Gain", juce::NormalisableRange<float> (-66.0f, 35.0f, 0.5f, 1.63f), 0.0f));
+    
+    //this pushes the mute button into the vector list above
+    params.push_back(std::make_unique<juce::AudioParameterBool>("mute", "Mute", 0));
+    
+    //this pushes the phase button into the vector list above
+    params.push_back(std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0));
+    
     
     return { params.begin(), params.end() };
 }
