@@ -138,6 +138,20 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
    
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+    
+    // Converts Stereo to Mono (no button included yet). All stereo signals are converted to Mono. Mono signals are uneffected
+    if (totalNumInputChannels == 2)
+    {
+        // add the right (1) to the left (0)
+        // store the sum in the left
+        buffer.addFrom(0, 0, buffer, 1, 0, buffer.getNumSamples());
+        
+        // copy the combined left (0) to the right (1)
+        buffer.copyFrom(1, 0, buffer, 0, 0, buffer.getNumSamples());
+    
+        // apply 0.5 gain to both
+        buffer.applyGain(0.5f);
+    }
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -162,6 +176,7 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
             else if (myMute == 0)
                 channelData [sample] = channelData[sample] * 1;
         }
+        
     }
 }
 
