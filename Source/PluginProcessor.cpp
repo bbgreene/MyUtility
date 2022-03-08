@@ -139,7 +139,7 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    // Converts Stereo to Mono (no button included yet). All stereo signals are converted to Mono. Mono signals are uneffected
+    // Converts Stereo to Mono (no button included yet). All stereo signals are converted to Mono. Mono signals are uneffected - https://forum.juce.com/t/how-do-i-sum-stereo-to-mono/37579/4
     if (totalNumInputChannels == 2)
     {
         // add the right (1) to the left (0)
