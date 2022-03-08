@@ -139,8 +139,12 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    // Converts Stereo to Mono (no button included yet). All stereo signals are converted to Mono. Mono signals are uneffected - https://forum.juce.com/t/how-do-i-sum-stereo-to-mono/37579/4
-    if (totalNumInputChannels == 2)
+    // Converts Stereo to Mono. If audio is stereo and mono button is 1, then signal will be mono'd
+    // https://forum.juce.com/t/how-do-i-sum-stereo-to-mono/37579/4
+    
+    auto myMono = apvts.getRawParameterValue("mono")->load();
+    
+    if (totalNumInputChannels == 2 && myMono == 1)
     {
         // add the right (1) to the left (0)
         // store the sum in the left
@@ -235,6 +239,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
     //this pushes the phase button into the vector list above
     params.push_back(std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0));
     
+    //this pushes the mono button into the vector list above
+    params.push_back(std::make_unique<juce::AudioParameterBool>("mono", "Mono", 0));
     
     return { params.begin(), params.end() };
 }
