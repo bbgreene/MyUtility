@@ -135,10 +135,10 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-   
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+    // Mono
     // Converts Stereo to Mono. If audio is stereo and mono button is 1, then signal will be mono'd
     // https://forum.juce.com/t/how-do-i-sum-stereo-to-mono/37579/4
     
@@ -157,29 +157,35 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
         buffer.applyGain(0.5f);
     }
 
+    auto myPhase = apvts.getRawParameterValue("phase")->load(); //taken out of for loop below...dropped the cpu power
+    auto myGain = apvts.getRawParameterValue("gain")->load(); //taken out of for loop below...dropped the cpu power
+    auto myMute = apvts.getRawParameterValue("mute")->load(); //taken out of for loop below...dropped the cpu power
+
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
         
-//        for loop that utilies gain and phase values. The phase formula came from here: // got this equation from juce tutorial:  https://docs.juce.com/master/tutorial_audio_processor_value_tree_state.html
-        
+        //Gain and Phase
+        // for loop that utilises gain and phase values. The phase formula came from here: // got this equation from juce tutorial:  https://docs.juce.com/master/tutorial_audio_processor_value_tree_state.html
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            auto myPhase = apvts.getRawParameterValue("phase")->load() < 0.5f ? 1.0f : -1.0f;
-            auto myGain = apvts.getRawParameterValue("gain")->load();
-            
-            channelData [sample] = channelData[sample] * juce::Decibels::decibelsToGain(myGain) * myPhase;
+            auto varPhase = myPhase < 0.5f ? 1.0f : -1.0f;
+            channelData [sample] = channelData[sample] * juce::Decibels::decibelsToGain(myGain) * varPhase;
         }
-        
+        // Mute
         // for loop that flips mute button bool value: if it is set to '1' (or Mute On) then the audio is muted. If it is set to '0' (or Mute off) then the audio passes. There is probably a better way to do this in the toggleButton itself, but can't figure it out at the mo
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            auto myMute = apvts.getRawParameterValue("mute")->load();
             if (myMute == 1)
                 channelData [sample] = channelData[sample] * 0;
             else if (myMute == 0)
                 channelData [sample] = channelData[sample] * 1;
         }
+        
+//        Stereo Balance
+        
+//        https://audioordeal.co.uk/how-to-build-a-vst-lesson-2-autopanner/
+//        don't think this will work as it turns down one side. What I'm I looking to acheive here? A stereo panner that turns one side up and one side down, or a stereo panner that moves the left or right audio to either side? Check out Lives and see what it does! Live is a balance control - turning down one side and added maximum 3dB to the other
         
     }
 }
