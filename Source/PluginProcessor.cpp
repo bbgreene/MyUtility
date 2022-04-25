@@ -19,13 +19,59 @@ MyUtilityAudioProcessor::MyUtilityAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), apvts(*this, nullptr, "Parameters", createParameters())
+                       ), treeState(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
 {
+    treeState.addParameterListener("gain", this);
+    treeState.addParameterListener("mute", this);
+    treeState.addParameterListener("phase", this);
+    treeState.addParameterListener("mono", this);
+    
 }
 
 MyUtilityAudioProcessor::~MyUtilityAudioProcessor()
 {
+    treeState.removeParameterListener("gain", this);
+    treeState.removeParameterListener("mute", this);
+    treeState.removeParameterListener("phase", this);
+    treeState.removeParameterListener("mono", this);
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::createParameterLayout()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+    
+    auto pGain = std::make_unique<juce::AudioParameterFloat>("gain", "Gain", -66.0f, 24.0f, 0.0f);
+    auto pMute = std::make_unique<juce::AudioParameterBool>("mute", "Mute", 0);
+    auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0);
+    auto pMono = std::make_unique<juce::AudioParameterBool>("mono", "Mono", 0);
+    
+    params.push_back(std::move(pGain));
+    params.push_back(std::move(pMute));
+    params.push_back(std::move(pPhase));
+    params.push_back(std::move(pMono));
+
+    return { params.begin(), params.end() };
+}
+
+void MyUtilityAudioProcessor::parameterChanged(const juce::String &parameterID, float newValue)
+{
+    if(parameterID  == "gain")
+    {
+        rawGain = juce::Decibels::decibelsToGain(newValue);
+    }
+    if(parameterID == "mute")
+    {
+        mute = newValue;
+    }
+    if(parameterID == "phase")
+    {
+        phase = newValue;
+    }
+    if(parameterID == "mono")
+    {
+        mono = newValue;
+    }
 }
 
 //==============================================================================
@@ -93,8 +139,10 @@ void MyUtilityAudioProcessor::changeProgramName (int index, const juce::String& 
 //==============================================================================
 void MyUtilityAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    rawGain = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("gain")));
+    mute = *treeState.getRawParameterValue("mute");
+    phase = *treeState.getRawParameterValue("phase");
+    mono = *treeState.getRawParameterValue("mono");
 }
 
 void MyUtilityAudioProcessor::releaseResources()
@@ -142,9 +190,7 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     // Converts Stereo to Mono. If audio is stereo and mono button is 1, then signal will be mono'd
     // https://forum.juce.com/t/how-do-i-sum-stereo-to-mono/37579/4
     
-    auto myMono = apvts.getRawParameterValue("mono")->load();
-    
-    if (totalNumInputChannels == 2 && myMono == 1)
+    if (totalNumInputChannels == 2 && mono == 1)
     {
         // add the right (1) to the left (0)
         // store the sum in the left
@@ -157,10 +203,6 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
         buffer.applyGain(0.5f);
     }
 
-    auto myPhase = apvts.getRawParameterValue("phase")->load(); //taken out of for loop below...dropped the cpu power
-    auto myGain = apvts.getRawParameterValue("gain")->load(); //taken out of for loop below...dropped the cpu power
-    auto myMute = apvts.getRawParameterValue("mute")->load(); //taken out of for loop below...dropped the cpu power
-
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
@@ -169,16 +211,16 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
         // for loop that utilises gain and phase values. The phase formula came from here: // got this equation from juce tutorial:  https://docs.juce.com/master/tutorial_audio_processor_value_tree_state.html
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            auto varPhase = myPhase < 0.5f ? 1.0f : -1.0f;
-            channelData [sample] = channelData[sample] * juce::Decibels::decibelsToGain(myGain) * varPhase;
+            auto varPhase = phase < 0.5f ? 1.0f : -1.0f;
+            channelData [sample] = channelData[sample] * rawGain * varPhase;
         }
         // Mute
         // for loop that flips mute button bool value: if it is set to '1' (or Mute On) then the audio is muted. If it is set to '0' (or Mute off) then the audio passes. There is probably a better way to do this in the toggleButton itself, but can't figure it out at the mo
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            if (myMute == 1)
+            if (mute == 1)
                 channelData [sample] = channelData[sample] * 0;
-            else if (myMute == 0)
+            else if (mute == 0)
                 channelData [sample] = channelData[sample] * 1;
         }
         
@@ -210,7 +252,7 @@ void MyUtilityAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // as intermediaries to make it easy to save and load complex data.
     
     juce::MemoryOutputStream mos(destData, true);
-    apvts.state.writeToStream(mos);
+    treeState.state.writeToStream(mos);
 }
 
 void MyUtilityAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -220,9 +262,8 @@ void MyUtilityAudioProcessor::setStateInformation (const void* data, int sizeInB
     auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
     if( tree.isValid() )
     {
-        apvts.replaceState(tree);
+        treeState.replaceState(tree);
     }
-    
 }
 
 //==============================================================================
@@ -230,23 +271,4 @@ void MyUtilityAudioProcessor::setStateInformation (const void* data, int sizeInB
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new MyUtilityAudioProcessor();
-}
-
-juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::createParameters()
-{
-    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-    
-    //this pushes gain into the vector list above
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("gain", "Gain", juce::NormalisableRange<float> (-66.0f, 35.0f, 0.5f, 1.63f), 0.0f));
-    
-    //this pushes the mute button into the vector list above
-    params.push_back(std::make_unique<juce::AudioParameterBool>("mute", "Mute", 0));
-    
-    //this pushes the phase button into the vector list above
-    params.push_back(std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0));
-    
-    //this pushes the mono button into the vector list above
-    params.push_back(std::make_unique<juce::AudioParameterBool>("mono", "Mono", 0));
-    
-    return { params.begin(), params.end() };
 }

@@ -26,17 +26,17 @@ public:
 
 private:
     
-    juce::Slider gainSlider;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainSliderAttachment;
-    
-    juce::ToggleButton muteButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> muteAttachment;
-    
-    juce::ToggleButton phaseButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> phaseAttachment;
-    
-    juce::ToggleButton monoButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> monoAttachment;
+//    juce::Slider gainSlider;
+//    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainSliderAttachment;
+//    
+//    juce::ToggleButton muteButton;
+//    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> muteAttachment;
+//    
+//    juce::ToggleButton phaseButton;
+//    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> phaseAttachment;
+//    
+//    juce::ToggleButton monoButton;
+//    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> monoAttachment;
         
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
