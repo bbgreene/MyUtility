@@ -56,17 +56,19 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
 
 void MyUtilityAudioProcessor::parameterChanged(const juce::String &parameterID, float newValue)
 {
-    if(parameterID  == "gain")
-    {
-        rawGain = juce::Decibels::decibelsToGain(newValue);
-    }
+    smoothGain.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("gain")->load()));
+
     if(parameterID == "mute")
     {
         mute = newValue;
+        auto varMute = mute < 0.5 ? 1.0 : 0.0;
+        smoothMute.setTargetValue(varMute);
     }
-    if(parameterID == "phase")
+    if(parameterID  == "phase")
     {
         phase = newValue;
+        auto varPhase = phase < 0.5 ? 1.0 : -1.0;
+        smoothPhase.setTargetValue(varPhase);
     }
     if(parameterID == "mono")
     {
@@ -139,9 +141,24 @@ void MyUtilityAudioProcessor::changeProgramName (int index, const juce::String& 
 //==============================================================================
 void MyUtilityAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    rawGain = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("gain")));
+    //smoothing
+    smoothGain.reset(sampleRate, 0.1); // ramp for gain
+    smoothMute.reset(sampleRate, 0.02); // ramp for mute
+    smoothPhase.reset(sampleRate, 0.25); // ramp for phase
+    
+    //Current and Target value of smoothGain coming from gain slider
+    smoothGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("gain")->load()));
+
+    //Current and Target value of smoothMute derived from a tenary operator that uses the mute bool value as the condition
     mute = *treeState.getRawParameterValue("mute");
+    auto varMute = mute < 0.5 ? 1.0 : 0.0;
+    smoothMute.setCurrentAndTargetValue(varMute);
+    
+    //Current and Target value of smoothPhase derived from a tenary operator that uses the phase bool value as the condition
     phase = *treeState.getRawParameterValue("phase");
+    auto varPhase = phase < 0.5 ? 1.0 : -1.0;
+    smoothPhase.setCurrentAndTargetValue(varPhase);
+    
     mono = *treeState.getRawParameterValue("mono");
 }
 
@@ -202,34 +219,38 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
         // apply 0.5 gain to both
         buffer.applyGain(0.5f);
     }
-
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    
+    //Target value of smoothGain coming from gain slider
+    smoothGain.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("gain")->load()));
+    
+    //Target value of smoothMute derived from a tenary operator that uses the mute bool value as the condition
+    mute = *treeState.getRawParameterValue("mute");
+    auto varMute = mute < 0.5 ? 1.0 : 0.0;
+    smoothMute.setTargetValue(varMute);
+    
+    //Target value of smoothPhase derived from a tenary operator that uses the phase bool value as the condition
+    phase = *treeState.getRawParameterValue("phase");
+    auto varPhase = phase < 0.5 ? 1.0 : -1.0;
+    smoothPhase.setTargetValue(varPhase);
+    
+    // My audio block object
+    juce::dsp::AudioBlock<float> block (buffer);
+            
+    // My dsp block
+    for(int channel = 0; channel < block.getNumChannels(); ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
+        auto* channelData = block.getChannelPointer(channel);
         
-        //Gain and Phase
-        // for loop that utilises gain and phase values. The phase formula came from here: // got this equation from juce tutorial:  https://docs.juce.com/master/tutorial_audio_processor_value_tree_state.html
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        for(int sample = 0; sample < block.getNumSamples(); ++sample)
         {
-            auto varPhase = phase < 0.5f ? 1.0f : -1.0f;
-            channelData [sample] = channelData[sample] * rawGain * varPhase;
+            channelData[sample] *= smoothGain.getNextValue() * smoothPhase.getNextValue() * smoothMute.getNextValue();
         }
-        // Mute
-        // for loop that flips mute button bool value: if it is set to '1' (or Mute On) then the audio is muted. If it is set to '0' (or Mute off) then the audio passes. There is probably a better way to do this in the toggleButton itself, but can't figure it out at the mo
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-        {
-            if (mute == 1)
-                channelData [sample] = channelData[sample] * 0;
-            else if (mute == 0)
-                channelData [sample] = channelData[sample] * 1;
-        }
-        
-//        Stereo Balance
-        
-//        https://audioordeal.co.uk/how-to-build-a-vst-lesson-2-autopanner/
-//        don't think this will work as it turns down one side. What I'm I looking to acheive here? A stereo panner that turns one side up and one side down, or a stereo panner that moves the left or right audio to either side? Check out Lives and see what it does! Live is a balance control - turning down one side and added maximum 3dB to the other
-        
     }
+    
+    ////        Stereo Balance
+    //
+    ////        https://audioordeal.co.uk/how-to-build-a-vst-lesson-2-autopanner/
+    ////        don't think this will work as it turns down one side. What I'm I looking to acheive here? A stereo panner that turns one side up and one side down, or a stereo panner that moves the left or right audio to either side? Check out Lives and see what it does! Live is a balance control - turning down one side and added maximum 3dB to the other
 }
 
 //==============================================================================

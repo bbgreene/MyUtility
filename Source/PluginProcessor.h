@@ -57,10 +57,13 @@ public:
 
 private:
     
-    float rawGain { 1.0 };
-    bool mute { false };
-    bool phase { false };
+    //Variables
+    juce::LinearSmoothedValue<float> smoothGain { 0.0f };
+    juce::LinearSmoothedValue<float> smoothPhase { 0.0f };
+    juce::LinearSmoothedValue<float> smoothMute { 0.0f };
     bool mono { false };
+    bool phase { false };
+    bool mute { false };
     
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
