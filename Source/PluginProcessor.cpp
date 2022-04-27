@@ -41,6 +41,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     
+    //make sure to update number of reservations after adding params
+    params.reserve(4);
+    
     auto pGain = std::make_unique<juce::AudioParameterFloat>("gain", "Gain", -66.0f, 24.0f, 0.0f);
     auto pMute = std::make_unique<juce::AudioParameterBool>("mute", "Mute", 0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0);
@@ -142,9 +145,9 @@ void MyUtilityAudioProcessor::changeProgramName (int index, const juce::String& 
 void MyUtilityAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     //smoothing
-    smoothGain.reset(sampleRate, 0.1); // ramp for gain
-    smoothMute.reset(sampleRate, 0.02); // ramp for mute
-    smoothPhase.reset(sampleRate, 0.25); // ramp for phase
+    smoothGain.reset(sampleRate, 0.1f); // ramp for gain
+    smoothMute.reset(sampleRate, 0.1f); // ramp for mute
+    smoothPhase.reset(sampleRate, 0.25f); // ramp for phase
     
     //Current and Target value of smoothGain coming from gain slider
     smoothGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("gain")->load()));
@@ -235,18 +238,19 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     
     // My audio block object
     juce::dsp::AudioBlock<float> block (buffer);
-            
+
+    DBG(smoothMute.getNextValue());
     // My dsp block
     for(int channel = 0; channel < block.getNumChannels(); ++channel)
     {
         auto* channelData = block.getChannelPointer(channel);
-        
+
         for(int sample = 0; sample < block.getNumSamples(); ++sample)
         {
             channelData[sample] *= smoothGain.getNextValue() * smoothPhase.getNextValue() * smoothMute.getNextValue();
         }
     }
-    
+
     ////        Stereo Balance
     //
     ////        https://audioordeal.co.uk/how-to-build-a-vst-lesson-2-autopanner/
