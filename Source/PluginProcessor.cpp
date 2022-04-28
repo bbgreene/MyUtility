@@ -26,6 +26,7 @@ MyUtilityAudioProcessor::MyUtilityAudioProcessor()
     treeState.addParameterListener("mute", this);
     treeState.addParameterListener("phase", this);
     treeState.addParameterListener("mono", this);
+    treeState.addParameterListener("balance", this);
     
 }
 
@@ -35,6 +36,8 @@ MyUtilityAudioProcessor::~MyUtilityAudioProcessor()
     treeState.removeParameterListener("mute", this);
     treeState.removeParameterListener("phase", this);
     treeState.removeParameterListener("mono", this);
+    treeState.removeParameterListener("balance", this);
+
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::createParameterLayout()
@@ -48,11 +51,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
     auto pMute = std::make_unique<juce::AudioParameterBool>("mute", "Mute", 0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0);
     auto pMono = std::make_unique<juce::AudioParameterBool>("mono", "Mono", 0);
+    auto pBalance = std::make_unique<juce::AudioParameterFloat>("balance", "Balance", -1.0, 1.0, 0);
     
     params.push_back(std::move(pGain));
     params.push_back(std::move(pMute));
     params.push_back(std::move(pPhase));
     params.push_back(std::move(pMono));
+    params.push_back(std::move(pBalance));
 
     return { params.begin(), params.end() };
 }
@@ -76,6 +81,10 @@ void MyUtilityAudioProcessor::parameterChanged(const juce::String &parameterID, 
     if(parameterID == "mono")
     {
         mono = newValue;
+    }
+    if(parameterID == "balance")
+    {
+        balance = newValue;
     }
 }
 
@@ -163,6 +172,16 @@ void MyUtilityAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     smoothPhase.setCurrentAndTargetValue(varPhase);
     
     mono = *treeState.getRawParameterValue("mono");
+    
+    //dsp panner preparation
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
+    
+    panner.reset();
+    panner.prepare(spec);
+    panner.setRule(juce::dsp::PannerRule::sin3dB);
 }
 
 void MyUtilityAudioProcessor::releaseResources()
@@ -236,6 +255,9 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     auto varPhase = phase < 0.5 ? 1.0 : -1.0;
     smoothPhase.setTargetValue(varPhase);
     
+    // pan variable connection to dsp panner
+    panner.setPan(static_cast<float>(*treeState.getRawParameterValue("balance")));
+    
     // My audio block object
     juce::dsp::AudioBlock<float> block (buffer);
 
@@ -250,11 +272,9 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
             channelData[sample] *= smoothGain.getNextValue() * smoothPhase.getNextValue() * smoothMute.getNextValue();
         }
     }
-
-    ////        Stereo Balance
-    //
-    ////        https://audioordeal.co.uk/how-to-build-a-vst-lesson-2-autopanner/
-    ////        don't think this will work as it turns down one side. What I'm I looking to acheive here? A stereo panner that turns one side up and one side down, or a stereo panner that moves the left or right audio to either side? Check out Lives and see what it does! Live is a balance control - turning down one side and added maximum 3dB to the other
+    
+    // dsp panner process context replacing
+    panner.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
 //==============================================================================

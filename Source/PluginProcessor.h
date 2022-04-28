@@ -65,6 +65,10 @@ private:
     bool phase { false };
     bool mute { false };
     
+    //dsp panner and raw panning variable instantiation
+    juce::dsp::Panner<float> panner;
+    float balance { 0.0 };
+    
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
     
