@@ -171,7 +171,11 @@ void MyUtilityAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     auto varPhase = phase < 0.5 ? 1.0 : -1.0;
     smoothPhase.setCurrentAndTargetValue(varPhase);
     
+    //mono bool variable connection to parameter
     mono = *treeState.getRawParameterValue("mono");
+    
+    // balance float variable connection to parameter
+    balance = *treeState.getRawParameterValue("balance");
     
     //dsp panner preparation
     juce::dsp::ProcessSpec spec;
