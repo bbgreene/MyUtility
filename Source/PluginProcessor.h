@@ -71,6 +71,9 @@ private:
     
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
+    
+    // mono function
+    void monoUpdate(juce::AudioBuffer<float>& buffer, bool mono, int totalNumInputChannels);
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyUtilityAudioProcessor)

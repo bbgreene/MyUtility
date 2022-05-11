@@ -229,22 +229,8 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    // Mono
-    // Converts Stereo to Mono. If audio is stereo and mono button is 1, then signal will be mono'd
-    // https://forum.juce.com/t/how-do-i-sum-stereo-to-mono/37579/4
-    
-    if (totalNumInputChannels == 2 && mono == 1)
-    {
-        // add the right (1) to the left (0)
-        // store the sum in the left
-        buffer.addFrom(0, 0, buffer, 1, 0, buffer.getNumSamples());
-        
-        // copy the combined left (0) to the right (1)
-        buffer.copyFrom(1, 0, buffer, 0, 0, buffer.getNumSamples());
-    
-        // apply 0.5 gain to both
-        buffer.applyGain(0.5f);
-    }
+    //mono function call
+    monoUpdate(buffer, mono, totalNumInputChannels);
     
     //Target value of smoothGain coming from gain slider
     smoothGain.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("gain")->load()));
@@ -279,6 +265,26 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     
     // dsp panner process context replacing
     panner.process(juce::dsp::ProcessContextReplacing<float>(block));
+}
+
+void MyUtilityAudioProcessor::monoUpdate(juce::AudioBuffer<float> &buffer, bool mono, int totalNumInputChannels)
+{
+    // Mono
+    // Converts Stereo to Mono. If audio is stereo and mono button is 1, then signal will be mono'd
+    // https://forum.juce.com/t/how-do-i-sum-stereo-to-mono/37579/4
+    
+    if (totalNumInputChannels == 2 && mono == 1)
+    {
+        // add the right (1) to the left (0)
+        // store the sum in the left
+        buffer.addFrom(0, 0, buffer, 1, 0, buffer.getNumSamples());
+        
+        // copy the combined left (0) to the right (1)
+        buffer.copyFrom(1, 0, buffer, 0, 0, buffer.getNumSamples());
+    
+        // apply 0.5 gain to both
+        buffer.applyGain(0.5f);
+    }
 }
 
 //==============================================================================
