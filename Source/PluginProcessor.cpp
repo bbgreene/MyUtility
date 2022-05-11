@@ -267,6 +267,7 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     panner.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
+//mono function
 void MyUtilityAudioProcessor::monoUpdate(juce::AudioBuffer<float> &buffer, bool mono, int totalNumInputChannels)
 {
     // Mono
