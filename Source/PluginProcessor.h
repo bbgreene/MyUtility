@@ -69,11 +69,22 @@ private:
     juce::dsp::Panner<float> panner;
     float balance { 0.0 };
     
+    //delay variables and instantiations
+    static constexpr auto effectDelaySamples = 192000;
+    juce::dsp::DelayLine<float> delay { effectDelaySamples };
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> linear { effectDelaySamples };
+    std::array<float, 2> delayValue { {} };
+    std::array<float, 2> lastDelayOutput;
+    
+    //Function for delay processing
+    void delayProcessing(juce::AudioBuffer<float>& buffer, int totalNumInputChannels, int totalNumOutputChannels);
+    
+    //Functions for param layout and changes
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
     
-    // mono function
-    void monoUpdate(juce::AudioBuffer<float>& buffer, bool mono, int totalNumInputChannels);
+    //Function for mono processing
+    void monoProcessing(juce::AudioBuffer<float>& buffer, bool mono, int totalNumInputChannels);
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyUtilityAudioProcessor)

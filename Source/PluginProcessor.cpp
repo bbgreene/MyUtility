@@ -27,6 +27,7 @@ MyUtilityAudioProcessor::MyUtilityAudioProcessor()
     treeState.addParameterListener("phase", this);
     treeState.addParameterListener("mono", this);
     treeState.addParameterListener("balance", this);
+    treeState.addParameterListener("delay", this);
     
 }
 
@@ -37,6 +38,7 @@ MyUtilityAudioProcessor::~MyUtilityAudioProcessor()
     treeState.removeParameterListener("phase", this);
     treeState.removeParameterListener("mono", this);
     treeState.removeParameterListener("balance", this);
+    treeState.removeParameterListener("delay", this);
 
 }
 
@@ -52,12 +54,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0);
     auto pMono = std::make_unique<juce::AudioParameterBool>("mono", "Mono", 0);
     auto pBalance = std::make_unique<juce::AudioParameterFloat>("balance", "Balance", -1.0, 1.0, 0);
+    auto pDelay = std::make_unique<juce::AudioParameterFloat>("delay", "Delay", 0.0f, 48000.0f, 0.0f);
     
     params.push_back(std::move(pGain));
     params.push_back(std::move(pMute));
     params.push_back(std::move(pPhase));
     params.push_back(std::move(pMono));
     params.push_back(std::move(pBalance));
+    params.push_back(std::move(pDelay));
 
     return { params.begin(), params.end() };
 }
@@ -86,6 +90,8 @@ void MyUtilityAudioProcessor::parameterChanged(const juce::String &parameterID, 
     {
         balance = newValue;
     }
+    if(parameterID == "delay")
+        std::fill(delayValue.begin(), delayValue.end(), newValue);
 }
 
 //==============================================================================
@@ -177,7 +183,7 @@ void MyUtilityAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     // balance float variable connection to parameter
     balance = *treeState.getRawParameterValue("balance");
     
-    //dsp panner preparation
+    //dsp panner and delay preparation
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
@@ -186,6 +192,12 @@ void MyUtilityAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     panner.reset();
     panner.prepare(spec);
     panner.setRule(juce::dsp::PannerRule::sin3dB);
+    
+    delay.prepare (spec);
+    linear.prepare (spec);
+    linear.reset();
+    
+    std::fill (lastDelayOutput.begin(), lastDelayOutput.end(), 0.0f);
 }
 
 void MyUtilityAudioProcessor::releaseResources()
@@ -229,8 +241,11 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    //mono function call
-    monoUpdate(buffer, mono, totalNumInputChannels);
+    //mono processing function call
+    monoProcessing(buffer, mono, totalNumInputChannels);
+    
+    //delay processing function call
+    delayProcessing(buffer, totalNumInputChannels, totalNumOutputChannels);
     
     //Target value of smoothGain coming from gain slider
     smoothGain.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("gain")->load()));
@@ -251,7 +266,6 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     // My audio block object
     juce::dsp::AudioBlock<float> block (buffer);
 
-    DBG(smoothMute.getNextValue());
     // My dsp block
     for(int channel = 0; channel < block.getNumChannels(); ++channel)
     {
@@ -267,8 +281,8 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     panner.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
-//mono function
-void MyUtilityAudioProcessor::monoUpdate(juce::AudioBuffer<float> &buffer, bool mono, int totalNumInputChannels)
+//mono processing function
+void MyUtilityAudioProcessor::monoProcessing(juce::AudioBuffer<float> &buffer, bool mono, int totalNumInputChannels)
 {
     // Mono
     // Converts Stereo to Mono. If audio is stereo and mono button is 1, then signal will be mono'd
@@ -285,6 +299,33 @@ void MyUtilityAudioProcessor::monoUpdate(juce::AudioBuffer<float> &buffer, bool 
     
         // apply 0.5 gain to both
         buffer.applyGain(0.5f);
+    }
+}
+
+//delay processing function
+void MyUtilityAudioProcessor::delayProcessing(juce::AudioBuffer<float> &buffer, int totalNumInputChannels, int totalNumOutputChannels)
+{
+    const auto numChannels = juce::jmax (totalNumInputChannels, totalNumOutputChannels);
+
+    auto audioBlock = juce::dsp::AudioBlock<float> (buffer).getSubsetChannelBlock (0, (size_t) numChannels);
+    auto context = juce::dsp::ProcessContextReplacing<float> (audioBlock);
+    const auto& input = context.getInputBlock();
+    const auto& output = context.getOutputBlock();
+    
+    for (size_t channel = 0; channel < numChannels; ++channel)
+    {
+        auto* samplesIn = input.getChannelPointer (channel);
+        auto* samplesOut = output.getChannelPointer (channel);
+           
+        for (size_t sample = 0; sample < input.getNumSamples(); ++sample)
+        {
+            auto input = samplesIn[sample] - lastDelayOutput[channel];
+            auto delayAmount = delayValue[channel];
+
+            linear.pushSample (int (channel), input);
+            linear.setDelay ((float) delayAmount);
+            samplesOut[sample] = linear.popSample ((int) channel);
+        }
     }
 }
 
