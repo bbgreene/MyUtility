@@ -77,18 +77,20 @@ private:
     std::array<float, 2> delayValue { {} };
     std::array<float, 2> lastDelayOutput;
     
-    //Function for delay processing
-    void delayProcessing(juce::AudioBuffer<float>& buffer, int totalNumInputChannels, int totalNumOutputChannels);
-    
     //Functions for param layout and changes
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
+    
+    //Function for delay processing
+    void delayProcessing(juce::AudioBuffer<float>& buffer, int totalNumInputChannels, int totalNumOutputChannels);
     
     //Function for mono processing
     void monoProcessing(juce::AudioBuffer<float>& buffer, bool mono, int totalNumInputChannels);
     
     //Function for m/s width processing
     void widthProcessing(juce::AudioBuffer<float>& buffer);
+    
+    void prepare(double sampleRate, int samplesPerBlock);
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyUtilityAudioProcessor)

@@ -168,48 +168,7 @@ void MyUtilityAudioProcessor::changeProgramName (int index, const juce::String& 
 //==============================================================================
 void MyUtilityAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    //smoothing
-    smoothGain.reset(sampleRate, 0.1f); // ramp for gain
-    smoothMute.reset(sampleRate, 0.1f); // ramp for mute
-    smoothPhase.reset(sampleRate, 0.25f); // ramp for phase
-    
-    //Current and Target value of smoothGain coming from gain slider
-    smoothGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("gain")->load()));
-
-    //Current and Target value of smoothMute derived from a tenary operator that uses the mute bool value as the condition
-    mute = *treeState.getRawParameterValue("mute");
-    auto varMute = mute < 0.5 ? 1.0 : 0.0;
-    smoothMute.setCurrentAndTargetValue(varMute);
-    
-    //Current and Target value of smoothPhase derived from a tenary operator that uses the phase bool value as the condition
-    phase = *treeState.getRawParameterValue("phase");
-    auto varPhase = phase < 0.5 ? 1.0 : -1.0;
-    smoothPhase.setCurrentAndTargetValue(varPhase);
-    
-    //mono bool variable connection to parameter
-    mono = *treeState.getRawParameterValue("mono");
-    
-    // balance float variable connection to parameter
-    balance = *treeState.getRawParameterValue("balance");
-    
-    // width float variable connection to parameter
-    width = *treeState.getRawParameterValue("width");
-    
-    //dsp panner and delay preparation
-    juce::dsp::ProcessSpec spec;
-    spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = getTotalNumOutputChannels();
-    
-    panner.reset();
-    panner.prepare(spec);
-    panner.setRule(juce::dsp::PannerRule::sin3dB);
-    
-    delay.prepare (spec);
-    linear.prepare (spec);
-    linear.reset();
-    
-    std::fill (lastDelayOutput.begin(), lastDelayOutput.end(), 0.0f);
+    prepare(sampleRate, samplesPerBlock);
 }
 
 void MyUtilityAudioProcessor::releaseResources()
@@ -301,7 +260,6 @@ void MyUtilityAudioProcessor::monoProcessing(juce::AudioBuffer<float> &buffer, b
 {
     // Mono
     // Converts Stereo to Mono. If audio is stereo and mono button is 1, then signal will be mono'd
-    // https://forum.juce.com/t/how-do-i-sum-stereo-to-mono/37579/4
     
     if (totalNumInputChannels == 2 && mono == 1)
     {
@@ -368,6 +326,52 @@ void MyUtilityAudioProcessor::widthProcessing(juce::AudioBuffer<float> &buffer)
             rightChannel[i] = mid + side;
         }
     }
+}
+
+void MyUtilityAudioProcessor::prepare(double sampleRate, int samplesPerBlock)
+{
+    //smoothing
+    smoothGain.reset(sampleRate, 0.1f); // ramp for gain
+    smoothMute.reset(sampleRate, 0.1f); // ramp for mute
+    smoothPhase.reset(sampleRate, 0.25f); // ramp for phase
+    
+    //Current and Target value of smoothGain coming from gain slider
+    smoothGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("gain")->load()));
+
+    //Current and Target value of smoothMute derived from a tenary operator that uses the mute bool value as the condition
+    mute = *treeState.getRawParameterValue("mute");
+    auto varMute = mute < 0.5 ? 1.0 : 0.0;
+    smoothMute.setCurrentAndTargetValue(varMute);
+    
+    //Current and Target value of smoothPhase derived from a tenary operator that uses the phase bool value as the condition
+    phase = *treeState.getRawParameterValue("phase");
+    auto varPhase = phase < 0.5 ? 1.0 : -1.0;
+    smoothPhase.setCurrentAndTargetValue(varPhase);
+    
+    //mono bool variable connection to parameter
+    mono = *treeState.getRawParameterValue("mono");
+    
+    // balance float variable connection to parameter
+    balance = *treeState.getRawParameterValue("balance");
+    
+    // width float variable connection to parameter
+    width = *treeState.getRawParameterValue("width");
+    
+    //dsp panner and delay preparation
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
+    
+    panner.reset();
+    panner.prepare(spec);
+    panner.setRule(juce::dsp::PannerRule::sin3dB);
+    
+    delay.prepare (spec);
+    linear.prepare (spec);
+    linear.reset();
+    
+    std::fill (lastDelayOutput.begin(), lastDelayOutput.end(), 0.0f);
 }
 
 //==============================================================================
