@@ -334,7 +334,7 @@ void MyUtilityAudioProcessor::delayProcessing(juce::AudioBuffer<float> &buffer, 
            
         for (size_t sample = 0; sample < input.getNumSamples(); ++sample)
         {
-            auto input = samplesIn[sample] - lastDelayOutput[channel];
+            auto input = samplesIn[sample] - lastDelayOutput[channel]; // not sure I need the 'lastDelayOutput' as it is for feedback...
             auto delayAmount = delayValue[channel];
 
             linear.pushSample (int (channel), input);
