@@ -64,6 +64,7 @@ private:
     bool mono { false };
     bool phase { false };
     bool mute { false };
+    float width;
     
     //dsp panner and raw panning variable instantiation
     juce::dsp::Panner<float> panner;
@@ -85,6 +86,9 @@ private:
     
     //Function for mono processing
     void monoProcessing(juce::AudioBuffer<float>& buffer, bool mono, int totalNumInputChannels);
+    
+    //Function for m/s width processing
+    void widthProcessing(juce::AudioBuffer<float>& buffer);
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyUtilityAudioProcessor)

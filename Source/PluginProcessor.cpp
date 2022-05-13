@@ -28,7 +28,7 @@ MyUtilityAudioProcessor::MyUtilityAudioProcessor()
     treeState.addParameterListener("mono", this);
     treeState.addParameterListener("balance", this);
     treeState.addParameterListener("delay", this);
-    
+    treeState.addParameterListener("width", this);
 }
 
 MyUtilityAudioProcessor::~MyUtilityAudioProcessor()
@@ -39,6 +39,7 @@ MyUtilityAudioProcessor::~MyUtilityAudioProcessor()
     treeState.removeParameterListener("mono", this);
     treeState.removeParameterListener("balance", this);
     treeState.removeParameterListener("delay", this);
+    treeState.removeParameterListener("width", this);
 
 }
 
@@ -47,14 +48,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     
     //make sure to update number of reservations after adding params
-    params.reserve(4);
+    params.reserve(7);
     
     auto pGain = std::make_unique<juce::AudioParameterFloat>("gain", "Gain", -66.0f, 24.0f, 0.0f);
     auto pMute = std::make_unique<juce::AudioParameterBool>("mute", "Mute", 0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0);
     auto pMono = std::make_unique<juce::AudioParameterBool>("mono", "Mono", 0);
     auto pBalance = std::make_unique<juce::AudioParameterFloat>("balance", "Balance", -1.0, 1.0, 0);
-    auto pDelay = std::make_unique<juce::AudioParameterFloat>("delay", "Delay", 0.0f, 48000.0f, 0.0f);
+    auto pDelay = std::make_unique<juce::AudioParameterFloat>("delay", "Sample Delay", juce::NormalisableRange<float> (0.0f, 48000.0f, 1.0f, 0.25f), 0.0f);
+    auto pWidth = std::make_unique<juce::AudioParameterFloat>("width", "M/S Width", 0.0f, 5.0f, 1.0f);
     
     params.push_back(std::move(pGain));
     params.push_back(std::move(pMute));
@@ -62,6 +64,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
     params.push_back(std::move(pMono));
     params.push_back(std::move(pBalance));
     params.push_back(std::move(pDelay));
+    params.push_back(std::move(pWidth));
 
     return { params.begin(), params.end() };
 }
@@ -91,7 +94,13 @@ void MyUtilityAudioProcessor::parameterChanged(const juce::String &parameterID, 
         balance = newValue;
     }
     if(parameterID == "delay")
+    {
         std::fill(delayValue.begin(), delayValue.end(), newValue);
+    }
+    if(parameterID == "width")
+    {
+        width = newValue;
+    }
 }
 
 //==============================================================================
@@ -183,6 +192,9 @@ void MyUtilityAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     // balance float variable connection to parameter
     balance = *treeState.getRawParameterValue("balance");
     
+    // width float variable connection to parameter
+    width = *treeState.getRawParameterValue("width");
+    
     //dsp panner and delay preparation
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
@@ -246,6 +258,9 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     
     //delay processing function call
     delayProcessing(buffer, totalNumInputChannels, totalNumOutputChannels);
+    
+    //width processing function call // mid/side
+    widthProcessing(buffer);
     
     //Target value of smoothGain coming from gain slider
     smoothGain.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("gain")->load()));
@@ -325,6 +340,32 @@ void MyUtilityAudioProcessor::delayProcessing(juce::AudioBuffer<float> &buffer, 
             linear.pushSample (int (channel), input);
             linear.setDelay ((float) delayAmount);
             samplesOut[sample] = linear.popSample ((int) channel);
+        }
+    }
+}
+
+// mid/side processing function
+void MyUtilityAudioProcessor::widthProcessing(juce::AudioBuffer<float> &buffer)
+{
+    const auto localWidth = treeState.getRawParameterValue("width")->load();
+    const auto coef_M = 1/std::fmax(1 + localWidth, 2);
+    const auto coef_S = localWidth * coef_M;
+    
+    for(int channel = 0; channel < buffer.getNumChannels(); ++channel)
+    {
+        auto* leftChannel = buffer.getWritePointer (0);
+        auto* rightChannel = buffer.getWritePointer (1);
+        
+        for (int i = 0; i  < buffer.getNumSamples(); ++i)
+        {
+            const auto sampleLeft = leftChannel[i];
+            const auto sampleRight = rightChannel[i];
+
+            const auto mid = coef_M * (sampleLeft + sampleRight);
+            const auto side = coef_S * (sampleRight - sampleLeft);
+
+            leftChannel[i] = mid - side;
+            rightChannel[i] = mid + side;
         }
     }
 }
