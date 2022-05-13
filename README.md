@@ -13,6 +13,6 @@ An audio utility vst plugin made with JUCE.
  Mono\
  Stereo Balance: pans signal within the stereo field\
  Sample Delay\
- Mid/Side Width: = 1 no effect, < 1 decreases stereo width (0 = mono), > 1 emphasises the sides (5 = no mid, all sides)
+ Mid/Side Width: = 1 no effect, < 1 decreases stereo width (0 = mono), > 1 emphases the sides (5 = no mid, all sides)
 
 Next step is a GUI
