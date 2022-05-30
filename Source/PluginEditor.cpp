@@ -16,6 +16,7 @@ MyUtilityAudioProcessorEditor::MyUtilityAudioProcessorEditor (MyUtilityAudioProc
     // set default font
     juce::LookAndFeel::getDefaultLookAndFeel().setDefaultSansSerifTypefaceName ("Avenir Next");
     
+    //dial, buttons with their respective attachments
     gainAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "gain", gain);
     gain.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
     gain.dialDecimalPoint(gain); // attempt at fixing decimal places
@@ -47,6 +48,7 @@ MyUtilityAudioProcessorEditor::MyUtilityAudioProcessorEditor (MyUtilityAudioProc
 //    bypassAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "bypass", bypass);
     addAndMakeVisible(bypass);
     
+    //dial label attachments
     gainLabel.attachToComponent(&gain, false);
     delayLabel.attachToComponent(&delay, false);
     balanceLabel.attachToComponent(&balance, false);
@@ -92,8 +94,8 @@ void MyUtilityAudioProcessorEditor::resized()
     
     auto phaseSize = smallDialSize * 0.4;
     auto phaseXPos = (getWidth() / 2) - (phaseSize / 2);
-    auto phaseYPos = getHeight() / 22;
-
+    auto phaseYPos = getHeight() / 20;
+    
     gain.setBounds(middle, bigDialTopMargin, bigDialSize, bigDialSize);
     phase.setBounds(phaseXPos, phaseYPos, phaseSize, phaseSize);
     delay.setBounds(leftMargin, gain.getBottom() + smallGap, smallDialSize, smallDialSize);
