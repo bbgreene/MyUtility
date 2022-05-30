@@ -70,7 +70,7 @@ void MyUtilityAudioProcessorEditor::paint (juce::Graphics& g)
     
 //    g.fillAll(juce::Colours::grey);
     juce::Rectangle<int> background = getLocalBounds();
-    g.setGradientFill(juce::ColourGradient::vertical(juce::Colours::lightblue, 0, juce::Colours::lightpink, 600));
+    g.setGradientFill(juce::ColourGradient::vertical(juce::Colours::lightblue, getHeight() - getHeight(), juce::Colours::lightpink, getHeight() / 2));
     g.fillRect(background);
 
 }
@@ -94,7 +94,6 @@ void MyUtilityAudioProcessorEditor::resized()
     auto phaseXPos = (getWidth() / 2) - (phaseSize / 2);
     auto phaseYPos = getHeight() / 22;
 
-    
     gain.setBounds(middle, bigDialTopMargin, bigDialSize, bigDialSize);
     phase.setBounds(phaseXPos, phaseYPos, phaseSize, phaseSize);
     delay.setBounds(leftMargin, gain.getBottom() + smallGap, smallDialSize, smallDialSize);

@@ -59,6 +59,9 @@ private:
     bbg_gui::bbg_dialLabel widthLabel { "Width" };
     bbg_gui::bbg_toggleLabel phaseLabel { "Phase" };
     
+    //Top Label Text
+    
+    
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     MyUtilityAudioProcessor& audioProcessor;
