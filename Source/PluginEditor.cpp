@@ -35,8 +35,7 @@ MyUtilityAudioProcessorEditor::MyUtilityAudioProcessorEditor (MyUtilityAudioProc
     addAndMakeVisible(width);
     
     phaseAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "phase", phase);
-    phase.setColour(juce::ToggleButton::ColourIds::tickDisabledColourId, CustomColours::blackGrey);
-    phase.setColour(juce::ToggleButton::ColourIds::tickColourId, CustomColours::blue);
+    phase.setToggleStyle(bbg_gui::bbg_Toggle::ToggleStyle::kPhaseToggle);
     addAndMakeVisible(phase);
 
     muteAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "mute", mute);
@@ -53,6 +52,10 @@ MyUtilityAudioProcessorEditor::MyUtilityAudioProcessorEditor (MyUtilityAudioProc
     balanceLabel.attachToComponent(&balance, false);
     widthLabel.attachToComponent(&width, false);
     phaseLabel.attachToComponent(&phase, false);
+    
+//    setResizable(true, true);
+//    setResizeLimits(300, 600, 600, 1200);
+//    getConstrainer()->setFixedAspectRatio(1.0);
 
     setSize (300, 600);
 }
@@ -65,7 +68,10 @@ MyUtilityAudioProcessorEditor::~MyUtilityAudioProcessorEditor()
 void MyUtilityAudioProcessorEditor::paint (juce::Graphics& g)
 {
     
-    g.fillAll(juce::Colours::grey);
+//    g.fillAll(juce::Colours::grey);
+    juce::Rectangle<int> background = getLocalBounds();
+    g.setGradientFill(juce::ColourGradient::vertical(juce::Colours::lightblue, 0, juce::Colours::lightpink, 600));
+    g.fillRect(background);
 
 }
 
