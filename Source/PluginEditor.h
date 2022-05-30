@@ -10,6 +10,11 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "../Source/bbg_gui/Dial.h"
+#include "../Source/bbg_gui/Toggle.h"
+#include "../Source/bbg_gui/PushButton.h"
+#include "../Source/bbg_gui/Menu.h"
+#include "../Source/bbg_gui/Label.h"
 
 //==============================================================================
 /**
@@ -26,17 +31,7 @@ public:
 
 private:
     
-//    juce::Slider gainSlider;
-//    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainSliderAttachment;
-//    
-//    juce::ToggleButton muteButton;
-//    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> muteAttachment;
-//    
-//    juce::ToggleButton phaseButton;
-//    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> phaseAttachment;
-//    
-//    juce::ToggleButton monoButton;
-//    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> monoAttachment;
+    bbg_gui::bbg_Dial gain { "dB", -66.0, 24.0, 0.1, 0.0, 0.0 };
         
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.

@@ -382,8 +382,8 @@ bool MyUtilityAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* MyUtilityAudioProcessor::createEditor()
 {
-//    return new MyUtilityAudioProcessorEditor (*this); // uncomment this line to return to my own parameter layout
-    return new juce::GenericAudioProcessorEditor(*this); // commment out this line to return to my own parameter layout...using this as a quick way to figure get a if dsp is working and to not have to worry about the gui (from simpleEQ video 3 - creating paramters).
+    return new MyUtilityAudioProcessorEditor (*this); // uncomment this line to return to my own parameter layout
+//    return new juce::GenericAudioProcessorEditor(*this); // commment out this line to return to my own parameter layout...using this as a quick way to figure get a if dsp is working and to not have to worry about the gui (from simpleEQ video 3 - creating paramters).
 }
 
 //==============================================================================
