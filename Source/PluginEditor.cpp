@@ -18,6 +18,7 @@ MyUtilityAudioProcessorEditor::MyUtilityAudioProcessorEditor (MyUtilityAudioProc
     
     gainAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "gain", gain);
     gain.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    gain.dialDecimalPoint(gain);
     addAndMakeVisible(gain);
     
     delayAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "delay", delay);
@@ -70,27 +71,25 @@ void MyUtilityAudioProcessorEditor::paint (juce::Graphics& g)
 
 void MyUtilityAudioProcessorEditor::resized()
 {
-    auto topMargin = getHeight() / 6;
+    auto bigDialTopMargin = getHeight() / 6;
     auto middle = getWidth() / 6;
-    auto bigDialSize = 200;
-    auto smallDialSize = 125;
+    auto bigDialSize = getHeight() / 3;
+    auto smallDialSize = getHeight() / 4.8;
     auto leftMargin = getWidth() / 12;
     auto smallGap = getHeight() / 40;
     auto bigGap = getHeight() / 17.14;
-    auto phaseGap = getWidth() / 43;
     
-    auto buttonHeightGap = smallDialSize / 17.86;
-    auto buttonHeight = smallDialSize / 3 - 7;
-    auto buttonWidth = smallDialSize / 2 - buttonHeightGap;
+    auto buttonHeightGap =  getHeight() / 55;
+    auto buttonHeight = getHeight() / 20.69;
+    auto buttonWidth = getWidth() / 4;
     auto buttonLeftGap = (smallDialSize - buttonWidth) / 2;
     
     auto phaseSize = smallDialSize * 0.4;
     auto phaseXPos = (getWidth() / 2) - (phaseSize / 2);
-    auto phaseYPos = getHeight() / 20;
+    auto phaseYPos = getHeight() / 22;
 
     
-    
-    gain.setBounds(middle, topMargin, bigDialSize, bigDialSize);
+    gain.setBounds(middle, bigDialTopMargin, bigDialSize, bigDialSize);
     phase.setBounds(phaseXPos, phaseYPos, phaseSize, phaseSize);
     delay.setBounds(leftMargin, gain.getBottom() + smallGap, smallDialSize, smallDialSize);
     
