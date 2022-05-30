@@ -74,7 +74,16 @@ void MyUtilityAudioProcessorEditor::paint (juce::Graphics& g)
     juce::Rectangle<int> background = getLocalBounds();
     g.setGradientFill(juce::ColourGradient::vertical(juce::Colours::lightblue, getHeight() - getHeight(), juce::Colours::lightpink, getHeight() / 2));
     g.fillRect(background);
-
+    
+    //Image title test
+    
+    auto imageXPos = getWidth() / 12;
+    auto imageYPos = getHeight() / 28;
+    auto imageWidth = getWidth() / 4;
+    auto imageHeight = getWidth() / 7;
+    
+    titleImage = juce::ImageCache::getFromMemory(BinaryData::TestTil_png, BinaryData::TestTil_pngSize);
+    g.drawImageWithin(titleImage, imageXPos, imageYPos, imageWidth, imageHeight, juce::RectanglePlacement::stretchToFit);
 }
 
 void MyUtilityAudioProcessorEditor::resized()
