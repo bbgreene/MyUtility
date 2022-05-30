@@ -32,7 +32,7 @@ public:
 private:
     
     //UI dials and Buttons
-    bbg_gui::bbg_Dial gain { " dB", -66.0, 24.0, 0.1, 0.0, 0.0 };
+    bbg_gui::bbg_Dial gain { " dB", -66.0, 24.0, 0.01, 0.0, 0.0 };
     bbg_gui::bbg_Dial delay { " Smps", 0.0, 48000.0, 1.0, 0.0, 0.0 };
     bbg_gui::bbg_Dial balance { " C", -1.0, 1.0, 0.1, 0.0, 0.0 };
     bbg_gui::bbg_Dial width { " W", 0.0, 5.0, 0.1, 1.0, 1.0 };

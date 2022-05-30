@@ -18,7 +18,7 @@ MyUtilityAudioProcessorEditor::MyUtilityAudioProcessorEditor (MyUtilityAudioProc
     
     gainAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "gain", gain);
     gain.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
-    gain.dialDecimalPoint(gain);
+    gain.dialDecimalPoint(gain); // attempt at fixing decimal places
     addAndMakeVisible(gain);
     
     delayAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "delay", delay);
