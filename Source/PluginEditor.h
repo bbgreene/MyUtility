@@ -31,8 +31,14 @@ public:
 
 private:
     
-    bbg_gui::bbg_Dial gain { "dB", -66.0, 24.0, 0.1, 0.0, 0.0 };
-        
+    //UI dials and Buttons
+    bbg_gui::bbg_Dial gain { " dB", -66.0, 24.0, 0.1, 0.0, 0.0 };
+    bbg_gui::bbg_Dial delay { " Smps", 0.0, 48000.0, 1.0, 0.0, 0.0 };
+    
+    //Attachments
+    
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> delayAttachement;
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     MyUtilityAudioProcessor& audioProcessor;
