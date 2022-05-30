@@ -46,6 +46,12 @@ MyUtilityAudioProcessorEditor::MyUtilityAudioProcessorEditor (MyUtilityAudioProc
     
 //    bypassAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "bypass", bypass);
     addAndMakeVisible(bypass);
+    
+    gainLabel.attachToComponent(&gain, false);
+    delayLabel.attachToComponent(&delay, false);
+    balanceLabel.attachToComponent(&balance, false);
+    widthLabel.attachToComponent(&width, false);
+    phaseLabel.attachToComponent(&phase, false);
 
     setSize (300, 600);
 }
@@ -65,18 +71,21 @@ void MyUtilityAudioProcessorEditor::paint (juce::Graphics& g)
 void MyUtilityAudioProcessorEditor::resized()
 {
     auto bigDialSize = 200;
-    auto smallDialSize = 150;
+    auto smallDialSize = 125;
+    auto leftMargin = getWidth() / 12;
+    auto smallGap = getHeight() / 40;
+    auto bigGap = getHeight() / 17.14;
     auto buttonWidth = smallDialSize / 2;
     auto buttonHeight = smallDialSize / 3;
     auto middle = getWidth() / 6;
     
     gain.setBounds(middle, getHeight() - 500, bigDialSize, bigDialSize);
-    delay.setBounds(0, gain.getBottom(), smallDialSize, smallDialSize);
+    delay.setBounds(leftMargin, gain.getBottom() + smallGap, smallDialSize, smallDialSize);
     phase.setBounds(delay.getRight(), gain.getBottom() + buttonHeight, buttonWidth, buttonHeight);
     mute.setBounds(delay.getRight() + buttonWidth, gain.getBottom(), buttonWidth, buttonHeight);
     mono.setBounds(delay.getRight() + buttonWidth, gain.getBottom() + buttonHeight, buttonWidth, buttonHeight);
     bypass.setBounds(delay.getRight() + buttonWidth, gain.getBottom() + buttonHeight * 2, buttonWidth, buttonHeight);
-    balance.setBounds(0, delay.getBottom(), smallDialSize, smallDialSize);
-    width.setBounds(smallDialSize, delay.getBottom(), smallDialSize, smallDialSize);
+    balance.setBounds(leftMargin, delay.getBottom() + bigGap, smallDialSize, smallDialSize);
+    width.setBounds(balance.getRight(), delay.getBottom() + bigGap, smallDialSize, smallDialSize);
     
 }

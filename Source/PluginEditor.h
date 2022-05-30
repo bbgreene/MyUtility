@@ -51,6 +51,14 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> muteAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> monoAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> bypassAttachement;
+    
+    //Labels
+    bbg_gui::bbg_dialLabel gainLabel { "Gain" };
+    bbg_gui::bbg_dialLabel delayLabel { "Delay" };
+    bbg_gui::bbg_dialLabel balanceLabel { "Balance" };
+    bbg_gui::bbg_dialLabel widthLabel { "Width" };
+    bbg_gui::bbg_toggleLabel phaseLabel { "Phase" };
+    
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     MyUtilityAudioProcessor& audioProcessor;
