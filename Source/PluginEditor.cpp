@@ -70,21 +70,34 @@ void MyUtilityAudioProcessorEditor::paint (juce::Graphics& g)
 
 void MyUtilityAudioProcessorEditor::resized()
 {
+    auto topMargin = getHeight() / 6;
+    auto middle = getWidth() / 6;
     auto bigDialSize = 200;
     auto smallDialSize = 125;
     auto leftMargin = getWidth() / 12;
     auto smallGap = getHeight() / 40;
     auto bigGap = getHeight() / 17.14;
-    auto buttonWidth = smallDialSize / 2;
-    auto buttonHeight = smallDialSize / 3;
-    auto middle = getWidth() / 6;
+    auto phaseGap = getWidth() / 43;
     
-    gain.setBounds(middle, getHeight() - 500, bigDialSize, bigDialSize);
+    auto buttonHeightGap = smallDialSize / 17.86;
+    auto buttonHeight = smallDialSize / 3 - 7;
+    auto buttonWidth = smallDialSize / 2 - buttonHeightGap;
+    auto buttonLeftGap = (smallDialSize - buttonWidth) / 2;
+    
+    auto phaseSize = smallDialSize * 0.4;
+    auto phaseXPos = (getWidth() / 2) - (phaseSize / 2);
+    auto phaseYPos = getHeight() / 20;
+
+    
+    
+    gain.setBounds(middle, topMargin, bigDialSize, bigDialSize);
+    phase.setBounds(phaseXPos, phaseYPos, phaseSize, phaseSize);
     delay.setBounds(leftMargin, gain.getBottom() + smallGap, smallDialSize, smallDialSize);
-    phase.setBounds(delay.getRight(), gain.getBottom() + buttonHeight, buttonWidth, buttonHeight);
-    mute.setBounds(delay.getRight() + buttonWidth, gain.getBottom(), buttonWidth, buttonHeight);
-    mono.setBounds(delay.getRight() + buttonWidth, gain.getBottom() + buttonHeight, buttonWidth, buttonHeight);
-    bypass.setBounds(delay.getRight() + buttonWidth, gain.getBottom() + buttonHeight * 2, buttonWidth, buttonHeight);
+    
+    mute.setBounds(delay.getRight() + buttonLeftGap, gain.getBottom() + buttonHeightGap, buttonWidth, buttonHeight);
+    mono.setBounds(delay.getRight() + buttonLeftGap, mute.getBottom() + buttonHeightGap, buttonWidth, buttonHeight);
+    bypass.setBounds(delay.getRight() + buttonLeftGap, mono.getBottom() + buttonHeightGap, buttonWidth, buttonHeight);
+    
     balance.setBounds(leftMargin, delay.getBottom() + bigGap, smallDialSize, smallDialSize);
     width.setBounds(balance.getRight(), delay.getBottom() + bigGap, smallDialSize, smallDialSize);
     
