@@ -55,7 +55,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
     auto pMute = std::make_unique<juce::AudioParameterBool>("mute", "Mute", 0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0);
     auto pMono = std::make_unique<juce::AudioParameterBool>("mono", "Mono", 0);
-    auto pBalance = std::make_unique<juce::AudioParameterFloat>("balance", "Balance", -1.0, 1.0, 0);
+    auto pBalance = std::make_unique<juce::AudioParameterFloat>("balance", "Balance", -50.0, 50.0, 0);
     auto pDelay = std::make_unique<juce::AudioParameterFloat>("delay", "Sample Delay", juce::NormalisableRange<float> (0.0f, 9999.0f, 1.0f, 0.3f), 0.0f);
     auto pWidth = std::make_unique<juce::AudioParameterFloat>("width", "M/S Width", 0.0f, 5.0f, 1.0f);
     
@@ -236,7 +236,10 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     smoothPhase.setTargetValue(varPhase);
     
     // pan variable connection to dsp panner
-    panner.setPan(static_cast<float>(*treeState.getRawParameterValue("balance")));
+    float myBalanceFifty = static_cast<float>(*treeState.getRawParameterValue("balance")); //getting -50 to 50
+    float myBalanceOneToOne = juce::jmap(myBalanceFifty, -50.0f, 50.0f, -1.0f, 1.0f); //converting to -1 to 1
+    DBG(myBalanceOneToOne);
+    panner.setPan(myBalanceOneToOne);
     
     // My audio block object
     juce::dsp::AudioBlock<float> block (buffer);
