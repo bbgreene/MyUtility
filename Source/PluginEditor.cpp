@@ -45,7 +45,7 @@ MyUtilityAudioProcessorEditor::MyUtilityAudioProcessorEditor (MyUtilityAudioProc
     monoAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "mono", mono);
     addAndMakeVisible(mono);
     
-//    bypassAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "bypass", bypass);
+    bypassAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "bypass", bypass);
     addAndMakeVisible(bypass);
     
     //dial label attachments

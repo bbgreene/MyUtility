@@ -64,7 +64,9 @@ private:
     bool mono { false };
     bool phase { false };
     bool mute { false };
+    bool bypass { false };
     float width;
+    
     
     //dsp panner and raw panning variable instantiation
     juce::dsp::Panner<float> panner;

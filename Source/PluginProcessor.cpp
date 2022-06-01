@@ -26,6 +26,7 @@ MyUtilityAudioProcessor::MyUtilityAudioProcessor()
     treeState.addParameterListener("mute", this);
     treeState.addParameterListener("phase", this);
     treeState.addParameterListener("mono", this);
+    treeState.addParameterListener("bypass", this);
     treeState.addParameterListener("balance", this);
     treeState.addParameterListener("delay", this);
     treeState.addParameterListener("width", this);
@@ -37,6 +38,7 @@ MyUtilityAudioProcessor::~MyUtilityAudioProcessor()
     treeState.removeParameterListener("mute", this);
     treeState.removeParameterListener("phase", this);
     treeState.removeParameterListener("mono", this);
+    treeState.removeParameterListener("bypass", this);
     treeState.removeParameterListener("balance", this);
     treeState.removeParameterListener("delay", this);
     treeState.removeParameterListener("width", this);
@@ -55,6 +57,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
     auto pMute = std::make_unique<juce::AudioParameterBool>("mute", "Mute", 0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0);
     auto pMono = std::make_unique<juce::AudioParameterBool>("mono", "Mono", 0);
+    auto pBypass = std::make_unique<juce::AudioParameterBool>("bypass", "Bypass", 0);
     auto pBalance = std::make_unique<juce::AudioParameterFloat>("balance", "Balance", -50.0, 50.0, 0);
     auto pDelay = std::make_unique<juce::AudioParameterFloat>("delay", "Sample Delay", juce::NormalisableRange<float> (0.0f, 9999.0f, 1.0f, 0.3f), 0.0f);
     auto pWidth = std::make_unique<juce::AudioParameterFloat>("width", "M/S Width", juce::NormalisableRange<float> (0.0f, 500.0f, 0.1f, 0.44f), 100.0f);
@@ -63,6 +66,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
     params.push_back(std::move(pMute));
     params.push_back(std::move(pPhase));
     params.push_back(std::move(pMono));
+    params.push_back(std::move(pBypass));
     params.push_back(std::move(pBalance));
     params.push_back(std::move(pDelay));
     params.push_back(std::move(pWidth));
@@ -89,6 +93,10 @@ void MyUtilityAudioProcessor::parameterChanged(const juce::String &parameterID, 
     if(parameterID == "mono")
     {
         mono = newValue;
+    }
+    if(parameterID == "bypass")
+    {
+        bypass = newValue;
     }
     if(parameterID == "balance")
     {
@@ -213,6 +221,24 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+    if(bypass)
+    {
+        // My audio block object
+        juce::dsp::AudioBlock<float> block (buffer);
+
+        // My dsp block
+        for(int channel = 0; channel < block.getNumChannels(); ++channel)
+        {
+            auto* channelData = block.getChannelPointer(channel);
+
+            for(int sample = 0; sample < block.getNumSamples(); ++sample)
+            {
+                channelData[sample] *= 1.0;
+            }
+        }
+    }
+    else
+    {
     //mono processing function call
     monoProcessing(buffer, mono, totalNumInputChannels);
     
@@ -256,6 +282,7 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     
     // dsp panner process context replacing
     panner.process(juce::dsp::ProcessContextReplacing<float>(block));
+    }
 }
 
 //mono processing function
