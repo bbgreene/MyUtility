@@ -57,7 +57,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
     auto pMono = std::make_unique<juce::AudioParameterBool>("mono", "Mono", 0);
     auto pBalance = std::make_unique<juce::AudioParameterFloat>("balance", "Balance", -50.0, 50.0, 0);
     auto pDelay = std::make_unique<juce::AudioParameterFloat>("delay", "Sample Delay", juce::NormalisableRange<float> (0.0f, 9999.0f, 1.0f, 0.3f), 0.0f);
-    auto pWidth = std::make_unique<juce::AudioParameterFloat>("width", "M/S Width", 0.0f, 5.0f, 1.0f);
+    auto pWidth = std::make_unique<juce::AudioParameterFloat>("width", "M/S Width", juce::NormalisableRange<float> (0.0f, 500.0f, 0.1f, 0.44f), 100.0f);
     
     params.push_back(std::move(pGain));
     params.push_back(std::move(pMute));
@@ -238,7 +238,6 @@ void MyUtilityAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     // pan variable connection to dsp panner
     float myBalanceFifty = static_cast<float>(*treeState.getRawParameterValue("balance")); //getting -50 to 50
     float myBalanceOneToOne = juce::jmap(myBalanceFifty, -50.0f, 50.0f, -1.0f, 1.0f); //converting to -1 to 1
-    DBG(myBalanceOneToOne);
     panner.setPan(myBalanceOneToOne);
     
     // My audio block object
@@ -309,7 +308,8 @@ void MyUtilityAudioProcessor::delayProcessing(juce::AudioBuffer<float> &buffer, 
 // mid/side processing function
 void MyUtilityAudioProcessor::widthProcessing(juce::AudioBuffer<float> &buffer)
 {
-    const auto localWidth = treeState.getRawParameterValue("width")->load();
+    float widthPercentage = treeState.getRawParameterValue("width")->load(); //getting 0 to 500
+    const auto localWidth = juce::jmap(widthPercentage, 0.0f, 500.0f, 0.0f, 5.0f); //converting to 0 - 1
     const auto coef_M = 1/std::fmax(1 + localWidth, 2);
     const auto coef_S = localWidth * coef_M;
     
