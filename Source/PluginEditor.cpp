@@ -55,9 +55,29 @@ MyUtilityAudioProcessorEditor::MyUtilityAudioProcessorEditor (MyUtilityAudioProc
     widthLabel.attachToComponent(&width, false);
     phaseLabel.attachToComponent(&phase, false);
     
-//    setResizable(true, true);
-//    setResizeLimits(300, 600, 600, 1200);
-//    getConstrainer()->setFixedAspectRatio(1.0);
+    //Titles
+    bouyTitle.setFont(juce::Font (26.0f, juce::Font::plain));
+    bouyTitle.setJustificationType(juce::Justification::centredLeft);
+    bouyTitle.setColour(juce::Label::textColourId, juce::Colours::darkslategrey);
+    addAndMakeVisible(bouyTitle);
+
+    bouyVersion.setFont(juce::Font (15.0f, juce::Font::plain));
+    bouyVersion.setJustificationType(juce::Justification::centredLeft);
+    bouyVersion.setColour(juce::Label::textColourId, juce::Colours::mintcream);
+    addAndMakeVisible(bouyVersion);
+    
+    olumay.setFont(juce::Font (15.0f, juce::Font::plain));
+    olumay.setJustificationType(juce::Justification::centredLeft);
+    olumay.setColour(juce::Label::textColourId, juce::Colours::rebeccapurple);
+    addAndMakeVisible(olumay);
+    
+    //Resizing
+    setResizable(true, true);
+    setResizeLimits(300, 600, 360, 720); // max limits are min * 1.2
+    getConstrainer()->setFixedAspectRatio(0.5);
+    
+    // Make sure that before the constructor has finished, you've set the
+    // editor's size to whatever you need it to be.
 
     setSize (300, 600);
 }
@@ -77,13 +97,13 @@ void MyUtilityAudioProcessorEditor::paint (juce::Graphics& g)
     
     //Image title test
     
-    auto imageXPos = getWidth() / 12;
-    auto imageYPos = getHeight() / 28;
-    auto imageWidth = getWidth() / 4;
-    auto imageHeight = getWidth() / 7;
+//    auto imageXPos = getWidth() / 12;
+//    auto imageYPos = getHeight() / 28;
+//    auto imageWidth = getWidth() / 4;
+//    auto imageHeight = getWidth() / 7;
     
-    titleImage = juce::ImageCache::getFromMemory(BinaryData::TestTil_png, BinaryData::TestTil_pngSize);
-    g.drawImageWithin(titleImage, imageXPos, imageYPos, imageWidth, imageHeight, juce::RectanglePlacement::stretchToFit);
+//    titleImage = juce::ImageCache::getFromMemory(BinaryData::Olumay_title_png, BinaryData::Olumay_title_pngSize);
+//    g.drawImageWithin(titleImage, imageXPos, imageYPos, imageWidth, imageHeight, juce::RectanglePlacement::stretchToFit);
 }
 
 void MyUtilityAudioProcessorEditor::resized()
@@ -115,5 +135,14 @@ void MyUtilityAudioProcessorEditor::resized()
     
     balance.setBounds(leftMargin, delay.getBottom() + bigGap, smallDialSize, smallDialSize);
     width.setBounds(balance.getRight(), delay.getBottom() + bigGap, smallDialSize, smallDialSize);
+    
+    auto olumayY = getHeight() * 0.9596;
+    auto olumayWidth = getWidth() * 0.233;
+    auto allTitlesHeight = getHeight() * 0.0404;
+    auto titlesTopMargin = getHeight() * 0.0101;
+    
+    olumay.setBounds(leftMargin, olumayY, olumayWidth, allTitlesHeight);
+    bouyTitle.setBounds(leftMargin, titlesTopMargin, allTitlesHeight * 3, allTitlesHeight);
+    bouyVersion.setBounds(leftMargin, bouyTitle.getBottom(), olumayWidth, allTitlesHeight);
     
 }

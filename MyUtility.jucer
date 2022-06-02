@@ -27,7 +27,6 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="o9LJ7v" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
-    <FILE id="uuZGys" name="TestTil.png" compile="0" resource="1" file="Source/TestTil.png"/>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
