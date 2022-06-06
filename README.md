@@ -14,4 +14,4 @@ An audio utility vst3 plugin made with JUCE.
  Mono\
  Bypass\
  Stereo Balance: pans signal within the stereo field\
- Mid/Side Width: = 1 no effect, < 1 decreases stereo width (0 = mono), > 1 emphases the sides (5 = no mid, all sides)
+ Mid/Side Width: 100% = no effect, < 100% decreases stereo width (0% = mono), > 100% emphases the sides (500% = no mid, all sides)
