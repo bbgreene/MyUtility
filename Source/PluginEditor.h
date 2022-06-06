@@ -57,10 +57,9 @@ private:
     bbg_gui::bbg_dialLabel delayLabel { "Delay" };
     bbg_gui::bbg_dialLabel balanceLabel { "Balance" };
     bbg_gui::bbg_dialLabel widthLabel { "M/S Width" };
-    bbg_gui::bbg_toggleLabel phaseLabel { "Phase" };
     bbg_gui::bbg_dialLabel olumay { "Olumay dsp" };
-    bbg_gui::bbg_dialLabel bouyTitle { "B O U Y" };
-    bbg_gui::bbg_dialLabel bouyVersion { "version 1.1" };
+    bbg_gui::bbg_dialLabel tilTitle { "T I L" };
+    bbg_gui::bbg_dialLabel tilVersion { "version 1.1" };
     
     //Top Label Text test
     juce::Image titleImage;
