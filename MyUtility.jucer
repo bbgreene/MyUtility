@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="utFkRD" name="MyUtility" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginName="TIL"
+              pluginAUMainType="'aufc'" pluginDesc="Audio Utility" pluginManufacturer="Olumay dsp">
   <MAINGROUP id="VFcDXG" name="MyUtility">
     <GROUP id="{0CE0E9C9-F022-EB4D-3AEB-C3498B782708}" name="Source">
       <GROUP id="{310DF66B-122C-C5DE-9F4D-5DD5E1E43265}" name="bbg_gui">
