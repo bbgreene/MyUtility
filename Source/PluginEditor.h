@@ -32,10 +32,10 @@ public:
 private:
     
     //UI dials and Buttons
-    bbg_gui::bbg_Dial gain { " dB", -66.0, 24.0, 0.01, 0.0, 0.0 };
+    bbg_gui::bbg_Dial gain { "", -66.0, 24.0, 0.01, 0.0, 0.0 };
     bbg_gui::bbg_Dial delay { " Smps", 0.0, 9999.0, 1.0, 0.0, 0.0 };
-    bbg_gui::bbg_Dial balance { " C", -50.0, 50.0, 0.1, 0.0, 0.0 };
-    bbg_gui::bbg_Dial width { " %", 0.0, 500.0, 0.1, 100.0, 100.0 };
+    bbg_gui::bbg_Dial balance { "", -50.0, 50.0, 0.1, 0.0, 0.0 };
+    bbg_gui::bbg_Dial width { "", 0.0, 500.0, 1.0, 100.0, 0.0 };
     bbg_gui::bbg_PushButton mute { "Mute" };
     bbg_gui::bbg_PushButton mono { "Mono" };
     bbg_gui::bbg_PushButton bypass { "Bypass" };

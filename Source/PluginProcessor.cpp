@@ -53,14 +53,38 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
     params.reserve(7);
     
 //    auto pGain = std::make_unique<juce::AudioParameterFloat>("gain", "Gain", -66.0f, 24.0f, 0.0f);
-    auto pGain = std::make_unique<juce::AudioParameterFloat>("gain", "Gain", juce::NormalisableRange<float> (-66.0f, 24.0f, 0.01f, 2.22f), 0.00f);
+    auto pGain = std::make_unique<juce::AudioParameterFloat>("gain",
+                                                             "Gain",
+                                                             juce::NormalisableRange<float> (-66.0f, 24.0f, 0.01f, 2.22f),
+                                                             0.00f,
+                                                             juce::String(),
+                                                             juce::AudioProcessorParameter::genericParameter,
+                                                             [](float value, int) {return (value < 10.0f && value > -10.0f) ? juce::String (value, 2) + " dB" : juce::String (value, 1) + " dB";},
+                                                             [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+
     auto pMute = std::make_unique<juce::AudioParameterBool>("mute", "Mute", 0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0);
     auto pMono = std::make_unique<juce::AudioParameterBool>("mono", "Mono", 0);
     auto pBypass = std::make_unique<juce::AudioParameterBool>("bypass", "Bypass", 0);
-    auto pBalance = std::make_unique<juce::AudioParameterFloat>("balance", "Balance", -50.0, 50.0, 0);
+    
+    auto pBalance = std::make_unique<juce::AudioParameterFloat>("balance", "Balance",
+                                                                juce::NormalisableRange<float> (-50.0f, 50.0f, 0.01f, 1.0f),
+                                                                0.00f,
+                                                                juce::String(),
+                                                                juce::AudioProcessorParameter::genericParameter,
+                                                                [](float value, int) {return (value == 0.0f) ? juce::String (value, 2) + " C" : ((value < 0.0f) ? juce::String (value, 1) + " L" : juce::String (value, 1) + " R" );},
+                                                                [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+    
     auto pDelay = std::make_unique<juce::AudioParameterFloat>("delay", "Sample Delay", juce::NormalisableRange<float> (0.0f, 9999.0f, 1.0f, 0.3f), 0.0f);
-    auto pWidth = std::make_unique<juce::AudioParameterFloat>("width", "M/S Width", juce::NormalisableRange<float> (0.0f, 500.0f, 0.1f, 0.44f), 100.0f);
+    
+    auto pWidth = std::make_unique<juce::AudioParameterFloat>("width",
+                                                              "M/S Width",
+                                                              juce::NormalisableRange<float> (0.0f, 500.0f, 1.0f, 0.44f),
+                                                              100.0f,
+                                                              juce::String(),
+                                                              juce::AudioProcessorParameter::genericParameter,
+                                                              [](float value, int) {return juce::String (value, 0) + " %"; },
+                                                              [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
     
     params.push_back(std::move(pGain));
     params.push_back(std::move(pMute));
