@@ -59,8 +59,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
                                                              0.00f,
                                                              juce::String(),
                                                              juce::AudioProcessorParameter::genericParameter,
-                                                             [](float value, int) {return (value < 10.0f && value > -10.0f) ? juce::String (value, 2) + " dB" : juce::String (value, 1) + " dB";},
-                                                             [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+                                                             [](float value, int) {return (value < 10.0f && value > -10.0f) ? juce::String (value, 2) + " dB" : juce::String (value, 1) + " dB";});
 
     auto pMute = std::make_unique<juce::AudioParameterBool>("mute", "Mute", 0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", 0);
@@ -72,8 +71,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
                                                                 0.00f,
                                                                 juce::String(),
                                                                 juce::AudioProcessorParameter::genericParameter,
-                                                                [](float value, int) {return (value == 0.0f) ? juce::String (value, 2) + " C" : ((value < 0.0f) ? juce::String (value, 1) + " L" : juce::String (value, 1) + " R" );},
-                                                                [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+                                                                [](float value, int) {return (value == 0.0f) ? juce::String (value, 2) + " C" : ((value < 0.0f) ? juce::String (value, 1) + " L" : juce::String (value, 1) + " R" );});
     
     auto pDelay = std::make_unique<juce::AudioParameterFloat>("delay", "Sample Delay", juce::NormalisableRange<float> (0.0f, 9999.0f, 1.0f, 0.3f), 0.0f);
     
@@ -83,8 +81,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MyUtilityAudioProcessor::cre
                                                               100.0f,
                                                               juce::String(),
                                                               juce::AudioProcessorParameter::genericParameter,
-                                                              [](float value, int) {return juce::String (value, 0) + " %"; },
-                                                              [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+                                                              [](float value, int) {return juce::String (value, 0) + " %"; });
     
     params.push_back(std::move(pGain));
     params.push_back(std::move(pMute));
